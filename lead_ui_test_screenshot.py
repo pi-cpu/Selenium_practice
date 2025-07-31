@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from selenium import webdriver
+from selenium.webdriver.edge.service import Service
 from selenium.webdriver.common.by import By
 import pickle
 import time
 import os
 
-# Edge WebDriver起動（EdgeDriverのPATHが通っている前提）
-options = webdriver.EdgeOptions()
-driver = webdriver.Edge(options=options)
+# Edge WebDriver起動
+service = Service(executable_path="C:/WebDriver/MicrosoftEdgeDeveloper/msedgedriver.exe")
+driver = webdriver.Edge(service=service)
 
 # SalesforceインスタンスURL
 BASE_URL = "https://orgfarm-89e4339fa3-dev-ed.develop.my.salesforce.com/"
