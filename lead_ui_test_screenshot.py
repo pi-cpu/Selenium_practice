@@ -9,7 +9,7 @@ options = webdriver.EdgeOptions()
 driver = webdriver.Edge(options=options)
 
 # SalesforceインスタンスURL（必要に応じて変更）
-BASE_URL = "https://your-instance.lightning.force.com"
+BASE_URL = "https://orgfarm-89e4339fa3-dev-ed.develop.my.salesforce.com/"
 LEAD_URL = f"{BASE_URL}/lightning/o/Lead/list?filterName=Recent"
 
 # Cookieファイルパス

@@ -8,7 +8,7 @@ options = webdriver.EdgeOptions()
 driver = webdriver.Edge(options=options)
 
 # Salesforceログインページへアクセス
-driver.get("https://login.salesforce.com")
+driver.get("https://orgfarm-89e4339fa3-dev-ed.develop.my.salesforce.com/")
 print("▶ 手動でログインしてください（MFA含む）")
 input("ログイン後、Enterを押してください：")
 
