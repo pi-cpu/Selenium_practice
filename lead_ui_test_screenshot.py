@@ -89,13 +89,13 @@ def create_lead_and_capture_screenshots():
 
 
     # 参照関係：「関連キャンペーン」
-    lookup = wait.until(EC.presence_of_element_located((By.XPATH, '//input[@title="キャンペーンを検索"]')))
+    lookup = wait.until(EC.presence_of_element_located((By.XPATH, '//input[@placeholder="キャンペーンを検索..."]')))
     lookup.send_keys("DM Campaign to Top Customers - Nov 12-23, 2001")
     time.sleep(2)
     driver.execute_script("arguments[0].click();", wait.until(EC.element_to_be_clickable((By.XPATH, '//lightning-base-combobox-formatted-text'))))
 
     # 保存
-    wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@name="保存"]'))).click()
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@name="SaveEdit"]'))).click()
     time.sleep(5)
     driver.save_screenshot("lead_after_save.png")
     print("✅ UIテスト完了（スクリーンショット保存）")
