@@ -1,8 +1,3 @@
-以下は、あなたの Selenium_practice プロジェクト用に再生成した README.md テンプレートです。目的や手順が明確で、再利用や拡張に適した構成になっています。
-
-⸻
-
-
 # Salesforce Lead UI 自動テスト（Selenium）
 
 このリポジトリでは、**Selenium + Python** を用いて、Salesforce上の**Leadレコード作成をUI経由で自動化**するスクリプトを管理しています。
