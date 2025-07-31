@@ -8,7 +8,7 @@
 
 | ファイル名 | 内容 |
 |------------|------|
-| `save_cookie.py` | Salesforce に手動ログイン後、Cookie を保存します |
+| `manual_cookies.json` | Salesforce に手動ログイン後、Cookie を保存します |
 | `lead_ui_test_screenshot.py` | Cookie を再利用してログイン済セッションで UI テストを実行し、スクリーンショットを取得します |
 | `sf_cookies.pkl` | Cookie を保存するためのファイル（`save_cookie.py` 実行後に生成） |
 | `requirements.txt` | Python の依存ライブラリ（`selenium`） |
