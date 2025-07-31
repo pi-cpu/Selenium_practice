@@ -1,0 +1,24 @@
+[
+  {
+    "name": "sid",
+    "value": "00DgL000007m91l!AQEAQAyWZM2SeJ80BabZH4is8ufxJ2ZaYef9rKhPIxEH8oN3CXoDKG5crNUM3.uqRAISoOL0jyWE89Jxp0OPUWkemGfGDMT2",
+    "domain": ".salesforce.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "oid",
+    "value": "00Dxxxxxxxxxxxxxxx",
+    "domain": ".salesforce.com",
+    "path": "/",
+    "secure": true
+  },
+  {
+    "name": "inst",
+    "value": "web",
+    "domain": ".salesforce.com",
+    "path": "/",
+    "secure": true
+  }
+]
