@@ -1,4 +1,4 @@
-
+# save_cookie.py
 from selenium import webdriver
 import pickle
 import time
@@ -7,7 +7,7 @@ import time
 options = webdriver.EdgeOptions()
 driver = webdriver.Edge(options=options)
 
-# Salesforceログインページへアクセス
+# Salesforceログインページへアクセス（自組織のURLに変更済み）
 driver.get("https://orgfarm-89e4339fa3-dev-ed.develop.my.salesforce.com/")
 print("▶ 手動でログインしてください（MFA含む）")
 input("ログイン後、Enterを押してください：")
