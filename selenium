@@ -1,0 +1,136 @@
+# -*- coding: utf-8 -*-
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service
+from selenium.webdriver.edge.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+import time
+import json
+
+# --- 設定 ---
+COOKIE_FILE = "manual_cookies.json"  # あなたが用意したクッキーファイル名
+BASE_URL = "https://orgfarm-89e4339fa3-dev-ed.develop.my.salesforce.com"
+LEAD_URL = f"{BASE_URL}/lightning/o/Lead/list?filterName=Recent"
+
+# --- ドライバー準備 ---
+options = Options()
+options.add_argument("--disable-notifications")
+
+# Allow the Edge WebDriver path to be configured via an environment variable.
+# Selenium will fall back to looking up `msedgedriver` on the PATH when the
+# given path is not found.  This makes the script portable across machines
+# where the driver may live in different locations.
+import os
+edge_driver_path = os.getenv("EDGE_DRIVER_PATH", "msedgedriver")
+service = Service(executable_path=edge_driver_path)
+driver = webdriver.Edge(service=service, options=options)
+wait = WebDriverWait(driver, 20)
+
+def load_cookies_and_open_leads():
+    """
+    Load authentication cookies from JSON and navigate to the lead list page.
+    When adding cookies Selenium expects the domain to match the currently
+    loaded site.  We therefore first load BASE_URL, add cookies, then
+    navigate to LEAD_URL.  Invalid cookies will be skipped with a warning.
+    """
+    driver.get(BASE_URL)
+    # give the browser a moment to initialise before injecting cookies
+    time.sleep(3)
+    with open(COOKIE_FILE, "r", encoding="utf-8") as f:
+        cookies = json.load(f)
+        for cookie in cookies:
+            # Remove the unsupported 'expiry' key if present
+            cookie.pop("expiry", None)
+            # Set SameSite and secure attributes to ensure Salesforce accepts the cookie
+            cookie["sameSite"] = cookie.get("sameSite") or "None"
+            cookie["secure"] = True
+            # Ensure the cookie domain is set.  Without this Selenium will reject it.
+            cookie.setdefault("domain", ".my.salesforce.com")
+            try:
+                driver.add_cookie(cookie)
+            except Exception as e:
+                # Print a helpful message but continue processing other cookies
+                print(f"Warning: failed to add cookie {cookie.get('name')}: {e}")
+    # Now navigate to the leads page so that the session cookies take effect
+    driver.get(LEAD_URL)
+    wait.until(EC.presence_of_element_located((By.XPATH, '//a[@title="新規"]')))
+    print("✅ リード一覧画面の読み込み完了")
+
+def create_lead_and_capture_screenshots():
+    """
+    Create a new lead and capture before/after screenshots.  This routine
+    takes care to scroll elements into view and waits for each element to
+    become interactable before clicking.  It will also wait for selected
+    items to appear in the dual-list box before proceeding.
+    """
+    print("▶ Lead 新規作成を開始")
+    new_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//a[@title="新規"]')))
+    new_button.click()
+    # Wait for the modal dialog to appear before taking the first screenshot
+    wait.until(EC.presence_of_element_located((By.XPATH, '//h2[contains(@class,"slds-modal__title")]')))
+    driver.save_screenshot("lead_before_save.png")
+
+    # 入力フィールドの操作
+    last_name = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[text()="姓"]/following::input[1]')))
+    last_name.send_keys("自動生成姓1")
+    company_name = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[text()="会社名"]/following::input[1]')))
+    company_name.send_keys("自動生成会社1")
+
+    # 選択リスト：最終変更種別
+    field_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[text()="最終変更種別"]/following::button[1]')))
+    driver.execute_script("arguments[0].scrollIntoView(true);", field_button)
+    field_button.click()
+    option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[@title="本人からの依頼"]')))
+    option.click()
+
+    # 商品リスト（複数選択）
+    def select_dual_listbox_items(labels):
+        for label in labels:
+            # 左側リストから項目を選択
+            option_xpath = f'//div[@role="option"]//span[@title="{label}"]'
+            option_element = wait.until(EC.element_to_be_clickable((By.XPATH, option_xpath)))
+            option_element.click()
+            # 「選択済み に移動」ボタンをクリック
+            move_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[contains(@title, "選択済み に移動")]')))
+            move_button.click()
+            print(f"✅ 商品リストに {label} を追加")
+            # 選択した項目が右側リストに表示されるまで待つ
+            selected_xpath = f'//div[@role="listbox" and contains(@class,"right")]//span[@title="{label}"]'
+            wait.until(EC.presence_of_element_located((By.XPATH, selected_xpath)))
+
+    # 呼び出し
+    select_dual_listbox_items(["IT", "Jordan"])
+
+    # 選択リスト：「リード 状況」
+    lead_status_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[text()="リード 状況"]/following::button[1]')))
+    driver.execute_script("arguments[0].scrollIntoView(true);", lead_status_button)
+    lead_status_button.click()
+    # 選択肢「Working - Contacted」を選択
+    lead_status_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[@title="Working - Contacted"]')))
+    lead_status_option.click()
+
+    # 参照関係：「関連キャンペーン」
+    lookup = wait.until(EC.element_to_be_clickable((By.XPATH, '//input[@placeholder="キャンペーンを検索..."]')))
+    campaign_name = "DM Campaign to Top Customers - Nov 12-23, 2001"
+    lookup.send_keys(campaign_name)
+    # 検索結果が表示されるまで少し待ってから最初の候補をクリック
+    first_result = wait.until(EC.element_to_be_clickable((By.XPATH, '//lightning-base-combobox-formatted-text[contains(@class,"slds-truncate")]')))
+    first_result.click()
+
+    # 保存
+    save_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@name="SaveEdit"]')))
+    save_button.click()
+    # 保存が完了し詳細ページに遷移するまで待機
+    wait.until(EC.presence_of_element_located((By.XPATH, '//a[contains(@href, "/Lead/")]')))
+    driver.save_screenshot("lead_after_save.png")
+    print("✅ UIテスト完了（スクリーンショット保存）")
+
+# --- 実行 ---
+try:
+    load_cookies_and_open_leads()
+    create_lead_and_capture_screenshots()
+finally:
+    driver.quit()
