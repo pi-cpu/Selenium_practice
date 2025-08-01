@@ -58,7 +58,37 @@ def create_lead_and_capture_screenshots():
     option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[@title="本人からの依頼"]')))
     driver.execute_script("arguments[0].click();", option)
 
+    from selenium.webdriver.common.by import By
+    import time
 
+    def add_values_to_multiselect_list(driver, left_select_xpath: str, add_button_xpath: str, values_to_add: list[str]):
+        """
+        Salesforce風の複数選択リストUIにて、左側のselectから右側に項目を追加する。
+
+        Parameters:
+        - driver: WebDriverインスタンス
+        - left_select_xpath: 左側の<select multiple>のXPath
+        - add_button_xpath: 「→」ボタンのXPath
+        - values_to_add: 追加したい<option>の表示テキストリスト（例: ['東京本社', '大阪支社']）
+        """
+
+        select_element = driver.find_element(By.XPATH, left_select_xpath)
+
+        for value in values_to_add:
+            try:
+                option = select_element.find_element(By.XPATH, f'.//option[normalize-space(text())="{value}"]')
+                option.click()
+                time.sleep(0.2)  # 安定のため待機
+            except Exception as e:
+                print(f"[!] 選択肢 '{value}' を選択できませんでした: {e}")
+
+        # すべての項目を選択した後に「→」ボタンをクリック
+        try:
+            add_button = driver.find_element(By.XPATH, add_button_xpath)
+            add_button.click()
+            time.sleep(0.5)  # ボタン処理後待機
+        except Exception as e:
+            print(f"[!] →ボタンのクリックに失敗しました: {e}")
     # 商品リスト（複数選択）
     def select_dual_listbox_items(labels):
         for label in labels:
