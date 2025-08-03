@@ -33,7 +33,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.edge.service import Service
+f
+rom selenium.webdriver.edge.service import Service
 from selenium.webdriver.edge.options import Options
 
 # -----------------------------------------------------------------------------
@@ -130,7 +131,8 @@ def create_record_and_capture(driver: webdriver.Edge) -> None:
         name_field = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[text()="項目A"]/following::input[1]')))
         name_field.send_keys("自動生成データA")
     except Exception:
-        print("⚠️ 項目A の入力フィールドが見つかりませんでした。項目ラベルを確認してください。")
+
+      print("⚠️ 項目A の入力フィールドが見つかりませんでした。項目ラベルを確認してください。")
 
     # 選択リスト項目の選択例
     try:
@@ -165,7 +167,8 @@ def create_record_and_capture(driver: webdriver.Edge) -> None:
         # Lightning Experience ではフィールドのラベルと値が別要素となるため、
         # ラベルから祖先をたどって値要素を取得する方法を採用します。
         label_element = wait.until(
-            EC.presence_of_element_located((By.XPATH, f'//span[contains(@class, "test-id__field-label") and normalize-space(text())="{TRIGGER_FIELD_LABEL}"]'))
+       
+          EC.presence_of_element_located((By.XPATH, f'//span[contains(@class, "test-id__field-label") and normalize-space(text())="{TRIGGER_FIELD_LABEL}"]'))
         )
         # ラベル要素から最も近い値要素を取得（同じレコードレイアウト行内を想定）
         value_element = label_element.find_element(By.XPATH, '../../following-sibling::div//span[@data-output-element-id]')
